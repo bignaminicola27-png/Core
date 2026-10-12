@@ -1,11 +1,39 @@
-const CORRECT_PIN = "1234"; 
+
+javascript
+const CORRECT_PIN = "2701"; 
 let currentPin = "";
 let userShortcuts = [];
 let userSubscriptions = [];
 let userStrings = [];
 let dcaTranches = [];
 
-// GESTIONE SBLOCCO PIN ACCURATO
+// ATTIVATORE TOUCH EVENT AUTOMATICO PER IPHONE (Sblocca il tastierino)
+document.addEventListener("DOMContentLoaded", () => {
+    const keypad = document.getElementById("keypad-container");
+    if(keypad) {
+        // Intercettiamo sia il touch fisico (iOS) sia il click (PC per i test)
+        const handleInput = (e) => {
+            const button = e.target.closest("button");
+            if (!button) return;
+            
+            // Evita che Safari esegua il comando due volte se rileva sia touch sia click
+            e.preventDefault(); 
+            
+            const key = button.getAttribute("data-key");
+            if (!key) return;
+            
+            if (key === "C") {
+                clearPin();
+            } else {
+                pressKey(key);
+            }
+        };
+
+        keypad.addEventListener("touchstart", handleInput, { passive: false });
+        keypad.addEventListener("click", handleInput);
+    }
+});
+
 function pressKey(num) {
     if (currentPin.length < 4) {
         currentPin += num;
@@ -39,7 +67,6 @@ function lockApp() {
     if(document.getElementById("sidebar").classList.contains("open")) toggleMenu();
 }
 
-// MANAGEMENT SIDEBAR E NAVIGAZIONE INTERNA
 function toggleMenu() {
     document.getElementById("sidebar").classList.toggle("open");
     document.getElementById("sidebar-overlay").classList.toggle("show");
@@ -58,7 +85,6 @@ function switchView(viewId, title) {
     if(viewId === 'qr-view') generateLocalQr();
 }
 
-// CALCOLI FINANZIARI
 function calculateFinance() {
     const inbank = parseFloat(document.getElementById("val-inbank").value) || 0;
     const trade = parseFloat(document.getElementById("val-trade").value) || 0;
@@ -93,7 +119,6 @@ function calculateRunway(totalAssets) {
     output.innerText = (months === "Infinity" || isNaN(months)) ? "Dati insufficienti" : `${months} Mesi di Copertura`;
 }
 
-// LOGICA GENERATORE QR OFFLINE
 function generateLocalQr() {
     const text = document.getElementById("qr-text-input").value || "CORE SYSTEM";
     const qrContainer = document.getElementById("qrcode");
@@ -105,7 +130,6 @@ function generateLocalQr() {
     }
 }
 
-// CALCOLATORE PREZZO DI CARICO MEDIO
 function addDcaTranche() {
     const qty = parseFloat(document.getElementById("dca-amount").value) || 0;
     const price = parseFloat(document.getElementById("dca-price").value) || 0;
@@ -128,11 +152,10 @@ function renderDca() {
     let totalQty = 0; let totalSpent = 0;
     dcaTranches.forEach(t => { totalQty += t.qty; totalSpent += (t.qty * t.price); });
     const avgPrice = totalQty > 0 ? (totalSpent / totalQty) : 0;
-    document.getElementById("dca-total-qty").innerText = totalQty.valueOf();
+    document.getElementById("dca-total-qty").innerText = totalQty.toString();
     document.getElementById("dca-average-output").innerText = avgPrice.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 }
 
-// VAULT COPIA RAPIDA
 function addNewString() {
     const title = prompt("Esempio: IBAN Inbank, Wallet BTC:");
     if (!title) return;
@@ -180,7 +203,6 @@ function renderStrings() {
     });
 }
 
-// GESTORE SCADENZE REQUISITO MONTHLY
 function addNewSubscription() {
     const name = prompt("Nome scadenza (es: iCloud):");
     if (!name) return;
@@ -217,25 +239,22 @@ function renderSubscriptions() {
         div.style = "display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:12px 16px;";
         div.innerHTML = `
             <div style="flex:1;"><span style="font-weight:600;">${sub.name}</span><span style="font-size:11px; color:var(--apple-gray); margin-left:8px;">Gg ${sub.day}</span></div>
-            <div style="color:var(--apple-green); font-weight:700; margin-right:15px;">${sub.cost.toFixed(2)} €</div>
-            <div style="font-size:12px; color:var(--apple-gray); margin-right:15px;">${daysText}</div>
-            <button onclick="removeSubscription(${index})" style="background:rgba(255,59,48,0.2); color:#ff3b30; border:none; padding:4px 8px; border-radius:4px;">✕</button>`;
-        container.appendChild(div);
-    });
-    document.getElementById("total-subs-cost").innerText = totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+${sub.cost.toFixed(2)} €
+${daysText}
+✕`;
+container.appendChild(div);
+});
+document.getElementById("total-subs-cost").innerText = totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 }
-
-// COMANDI AUTOMAZIONE HOMEKIT INTERRUTTORI
 function addNewShortcut() {
-    const name = prompt("Nome ESATTO del comando rapido su iPhone:");
-    if (!name || userShortcuts.includes(name)) return;
-    userShortcuts.push(name);
-    localStorage.setItem("core_shortcuts", JSON.stringify(userShortcuts));
-    renderShortcuts();
+const name = prompt("Nome ESATTO del comando rapido su iPhone:");
+if (!name || userShortcuts.includes(name)) return;
+userShortcuts.push(name);
+localStorage.setItem("core_shortcuts", JSON.stringify(userShortcuts));
+renderShortcuts();
 }
-
 function removeShortcut(name) {
-    if(confirm(`Rimuovere interruttore "${name}"?`)) {
+if(confirm(Rimuovere interruttore "${name}"?)) {
 userShortcuts = userShortcuts.filter(item => item !== name);
 localStorage.setItem("core_shortcuts", JSON.stringify(userShortcuts));
 renderShortcuts();
@@ -245,18 +264,17 @@ function renderShortcuts() {
 const container = document.getElementById("shortcuts-container");
 container.innerHTML = "";
 if(userShortcuts.length === 0) {
-container.innerHTML = "Nessun interruttore configurato.";
+container.innerHTML = "Nessun interruttore.";
 return;
 }
 userShortcuts.forEach(shortcut => {
 const div = document.createElement("div");
 div.style = "position:relative;";
 const encodedName = encodeURIComponent(shortcut);
-div.innerHTML =  <a href="shortcuts://run-shortcut?name=${encodedName}" class="btn-hk"> <div class="hk-icon">💡</div> <div class="hk-title">${shortcut}</div> </a> <button onclick="removeShortcut('${shortcut}')" style="position:absolute; top:8px; right:8px; background:rgba(255,59,48,0.2); color:#ff3b30; border:none; border-radius:50%; width:22px; height:22px; font-size:10px; cursor:pointer;">✕</button>;
+div.innerHTML = <a href="shortcuts://run-shortcut?name=${encodedName}" class="btn-hk"> <div class="hk-icon">💡</div> <div class="hk-title">${shortcut}</div> </a> <button onclick="removeShortcut('${shortcut}')" style="position:absolute; top:8px; right:8px; background:rgba(255,59,48,0.15); color:#ff3b30; border:none; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer;">✕</button>;
 container.appendChild(div);
 });
 }
-// SCRATCHPAD E NOTE
 function saveScratchpad() { localStorage.setItem("core_scratchpad", document.getElementById("scratchpad-text").value); }
 function clearScratchpad() { document.getElementById("scratchpad-text").value = ""; localStorage.removeItem("core_scratchpad"); }
 function saveNotes() { localStorage.setItem("core_notes", btoa(unescape(encodeURIComponent(document.getElementById("secure-notes").value)))); alert("Nota salvata localmente."); }
