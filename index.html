@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
-<!DOCTYPE html>
-<html lang="it">
 <head>
     <meta charset="UTF-8">
-    <!-- viewport-fit=cover dice all'iPhone di estendere il nero a tutto schermo sotto la Dynamic Island e la barra inferiore -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CORE</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Cambiato in default per allinearsi alle regole di colorazione automatica di iOS per PWA -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CORE">
     <script src="https://cloudflare.com"></script>
 </head>
-
 <body>
 
     <!-- SCHERMATA PIN STILE APPLE -->
@@ -27,11 +22,12 @@
             <div class="pin-dots">
                 <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
-            <div class="pin-keypad">
-                <button onclick="pressKey(1)">1</button><button onclick="pressKey(2)">2</button><button onclick="pressKey(3)">3</button>
-                <button onclick="pressKey(4)">4</button><button onclick="pressKey(5)">5</button><button onclick="pressKey(6)">6</button>
-                <button onclick="pressKey(7)">7</button><button onclick="pressKey(8)">8</button><button onclick="pressKey(9)">9</button>
-                <button class="empty"></button><button onclick="pressKey(0)">0</button><button onclick="clearPin()">C</button>
+            <!-- Rimossi i vecchi onclick: ora i tasti vengono letti direttamente via software -->
+            <div class="pin-keypad" id="keypad-container">
+                <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+                <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+                <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+                <button class="empty"></button><button data-key="0">0</button><button data-key="C">C</button>
             </div>
         </div>
     </div>
@@ -129,7 +125,7 @@
                     <h3>Generazione QR Code Offline</h3>
                     <textarea id="qr-text-input" placeholder="Incolla l'indirizzo crypto o codice da trasformare in QR..." style="height: 100px;" oninput="generateLocalQr()"></textarea>
                 </div>
-                <div class="card" style="display: flex; justify-content: center; align-items: center; background: white; padding: 20px; border-radius: 12px; width: 160px; height: 160px; margin: 0 auto;">
+                <div class="card" style="display: flex; justify-content: center; align-items: center; background: white; padding: 20px; border-radius: 12px; width: 140px; height: 140px; margin: 0 auto;">
                     <div id="qrcode"></div>
                 </div>
             </div>
@@ -162,3 +158,4 @@
             <!-- VISTA 8: NOTE CRIPTATE -->
             <div id="view-notes-view" class="sub-view hidden">
                 <div class="card" style="padding:15px;">
+                    <textarea id="secure-notes" placeholder="Scrivi una nota protetta... Verrà salvata in modo offuscato nell'hardware dell'iPhone."></textarea>
