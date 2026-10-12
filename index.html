@@ -9,14 +9,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CORE">
+    <!-- Script sicuro per generare QR code offline direttamente sul chip dell'iPhone -->
+    <script src="https://cloudflare.com"></script>
 </head>
 <body>
 
-    <!-- 1. SCHERMATA PIN -->
+    <!-- SCHERMATA PIN STILE APPLE -->
     <div id="pin-screen" class="screen">
         <div class="pin-container">
+            <div class="apple-logo">🔒</div>
             <h2>CORE SYSTEM</h2>
-            <p>Inserisci codice di sblocco</p>
+            <p>Inserisci il codice di sblocco</p>
             <div class="pin-dots">
                 <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
@@ -29,105 +32,129 @@
         </div>
     </div>
 
-    <!-- 2. DASHBOARD PRINCIPALE -->
+    <!-- STRUTTURA PRINCIPALE APPLICAZIONE -->
     <div id="main-screen" class="screen hidden">
-        <header>
-            <h1>CORE</h1>
+        <nav class="navbar">
+            <button id="menu-trigger" onclick="toggleMenu()">☰</button>
+            <h1 id="view-title">Dashboard</h1>
             <span class="lock-icon" onclick="lockApp()">🔒</span>
-        </header>
+        </nav>
 
-        <main>
-            <!-- Sezione Finanza Bilancio -->
-            <section class="card">
-                <h3>💰 Riepilogo Bilancio Manuale</h3>
-                <div class="input-grid">
-                    <label>Inbank (€): <input type="number" id="val-inbank" value="0" onchange="calculateFinance()"></label>
-                    <label>Trade Rep (€): <input type="number" id="val-trade" value="0" onchange="calculateFinance()"></label>
-                    <label>Binance (€): <input type="number" id="val-binance" value="0" onchange="calculateFinance()"></label>
-                    <label>Revolut (€): <input type="number" id="val-revolut" value="0" onchange="calculateFinance()"></label>
-                </div>
-                <div class="result-box" style="margin-top:15px; text-align:right;">
-                    <p style="margin:0; font-size:16px;">Totale Asset: <strong id="total-assets" style="color:var(--cyan);">0.00 €</strong></p>
-                </div>
-            </section>
+        <!-- MENU LATERALE APRIBILE (SIDEBAR) -->
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>STRUMENTI</h3>
+                <button onclick="toggleMenu()">✕</button>
+            </div>
+            <ul class="menu-list">
+                <li class="active" onclick="switchView('dashboard', 'Dashboard')">💰 Patrimonio & Finanze</li>
+                <li onclick="switchView('budget-view', 'Ripartizione & Rate')">📊 Budget & Risparmio</li>
+                <li onclick="switchView('dca-view', 'Prezzo di Carico Asset')">📈 Calcolatore Prezzo Medio</li>
+                <li onclick="switchView('qr-view', 'Generatore QR Privato')">📱 Generatore QR Locale</li>
+                <li onclick="switchView('vault-view', 'Vault Codici')">📋 Copia Rapida Stringhe</li>
+                <li onclick="switchView('subs-view', 'Scadenze')">📅 Scadenze Ricorrenti</li>
+                <li onclick="switchView('homekit-view', 'Domotica')">🏠 Comandi HomeKit</li>
+                <li onclick="switchView('notes-view', 'Note Private')">🔒 Note Criptate</li>
+                <li onclick="switchView('scratchpad-view', 'Scratchpad')">📝 Scratchpad Volante</li>
+            </ul>
+        </div>
+        <div id="sidebar-overlay" onclick="toggleMenu()"></div>
 
-            <!-- Sezione Regola Budget & TASSO DI RISPARMIO -->
-            <section class="card">
-                <h3>📊 Ripartizione Stipendio & Savings Rate</h3>
-                <div class="input-single" style="display:flex; gap:10px;">
-                    <input type="number" id="salary-input" placeholder="Stipendio ricevuto" style="flex:1;">
-                    <button onclick="calculateBudget()">Calcola</button>
+        <div class="content-wrapper">
+            
+            <!-- VISTA 1: PATRIMONIO -->
+            <div id="view-dashboard" class="sub-view">
+                <div class="card summary-card">
+                    <span class="card-label">PATRIMONIO TOTALE ASSET</span>
+                    <h2 id="total-assets">0.00 €</h2>
                 </div>
-                <div id="budget-results" class="hidden-results" style="margin-top:10px; font-size:14px; line-height:1.6;">
-                    <p style="margin:5px 0;">Necessità (50% -> Inbank/Revolut): <span id="b-50" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
-                    <p style="margin:5px 0;">Investimenti (30% -> Trade Rep): <span id="b-30" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
-                    <p style="margin:5px 0;">Svago/Crypto (20% -> Binance): <span id="b-20" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
-                    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; font-weight:bold;">
-                        Tasso di Risparmio Attuale: <span id="savings-rate-display" style="color:#34c759;">0%</span>
+                <div class="apple-list">
+                    <div class="list-item"><span class="item-title">Inbank</span><input type="number" id="val-inbank" value="0" onchange="calculateFinance()"></div>
+                    <div class="list-item"><span class="item-title">Trade Republic</span><input type="number" id="val-trade" value="0" onchange="calculateFinance()"></div>
+                    <div class="list-item"><span class="item-title">Binance</span><input type="number" id="val-binance" value="0" onchange="calculateFinance()"></div>
+                    <div class="list-item"><span class="item-title">Revolut</span><input type="number" id="val-revolut" value="0" onchange="calculateFinance()"></div>
+                </div>
+                <div class="card" style="margin-top:20px;">
+                    <h3>Autonomia Finanziaria (Runway)</h3>
+                    <p style="font-size:13px; color:var(--apple-gray);">Mesi di copertura stimati rispetto alle tue uscite fisse mensili:</p>
+                    <div class="runway-display" id="runway-output">Inserisci scadenze per calcolare</div>
+                </div>
+            </div>
+
+            <!-- VISTA 2: BUDGET & TASSO RISPARMIO -->
+            <div id="view-budget-view" class="sub-view hidden">
+                <div class="card">
+                    <h3>Pianificatore 50/30/20</h3>
+                    <div class="apple-input-group">
+                        <input type="number" id="salary-input" placeholder="Stipendio mensile (€)">
+                        <button onclick="calculateBudget()" class="apple-btn">Calcola</button>
                     </div>
                 </div>
-            </section>
+                <div class="apple-list">
+                    <div class="list-item"><span>Necessità (50% -> Revolut)</span><span id="b-50" class="numeric-val">0 €</span></div>
+                    <div class="list-item"><span>Investimenti (30% -> Trade Rep)</span><span id="b-30" class="numeric-val">0 €</span></div>
+                    <div class="list-item"><span>Svago (20% -> Binance)</span><span id="b-20" class="numeric-val">0 €</span></div>
+                    <div class="list-item" style="border:none;"><span style="font-weight:600;">Tasso di Risparmio Target</span><span id="savings-rate-display" style="color:var(--apple-green); font-weight:700;">50%</span></div>
+                </div>
+            </div>
 
-            <!-- SEZIONE: VAULT COPIA RAPIDA STRINGHE -->
-            <section class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="margin:0;">📋 Copia Rapida (IBAN / Wallet Crypto)</h3>
-                    <button onclick="addNewString()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+            <!-- VISTA 3: PREZZO MEDIO DI CARICO (DCA) -->
+            <div id="view-dca-view" class="sub-view hidden">
+                <div class="card">
+                    <h3>Prezzo Medio di Carico (Break-Even)</h3>
+                    <div class="apple-input-group" style="flex-direction: column; gap: 8px;">
+                        <input type="number" id="dca-amount" placeholder="Quantità acquistata (es. 0.005)">
+                        <input type="number" id="dca-price" placeholder="Prezzo singolo di acquisto (€)">
+                        <button onclick="addDcaTranche()" class="apple-btn" style="width: 100%;">Aggiungi Tranche</button>
+                    </div>
                 </div>
-                <div id="strings-container">
-                    <!-- Lista codici e bottoni copia -->
+                <div class="card" style="background: rgba(255,255,255,0.02);">
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                        <span>Quote Totali Accumulate:</span> <span id="dca-total-qty" style="font-weight: bold;">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; border-top: 0.5px solid #222; padding-top: 8px;">
+                        <span>Prezzo Medio Ponderato:</span> <span id="dca-average-output" style="color: var(--apple-green);">0.00 €</span>
+                    </div>
+                    <button onclick="clearDca()" class="apple-btn-secondary" style="width: 100%; margin-top: 15px; color: #ff3b30; border-color: rgba(255,59,48,0.2);">Azzera Storico</button>
                 </div>
-            </section>
+            </div>
 
-            <!-- Sezione Scadenze -->
-            <section class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="margin:0;">📅 Scadenze e Abbonamenti</h3>
-                    <button onclick="addNewSubscription()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+            <!-- VISTA 4: GENERATORE QR LOCALE -->
+            <div id="view-qr-view" class="sub-view hidden">
+                <div class="card">
+                    <h3>Generazione QR Code Offline</h3>
+                    <textarea id="qr-text-input" placeholder="Incolla l'indirizzo crypto o codice da trasformare in QR..." style="height: 100px;" oninput="generateLocalQr()"></textarea>
                 </div>
-                <div id="subs-container">
-                    <!-- Lista delle scadenze caricate localmente -->
+                <div class="card" style="display: flex; justify-content: center; align-items: center; background: white; padding: 20px; border-radius: 12px; width: 160px; height: 160px; margin: 0 auto;">
+                    <div id="qrcode"></div>
                 </div>
-                <div style="margin-top:12px; text-align:right; font-size:13px; color:var(--text-gray);">
-                    Uscite fisse mensili: <strong id="total-subs-cost" style="color:white;">0.00 €</strong>
-                </div>
-            </section>
+            </div>
 
-            <!-- Generatore Password -->
-            <section class="card">
-                <h3>🔑 Generatore Password Sicure</h3>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <input type="text" id="generated-pwd" readonly placeholder="Password generata" style="flex:1; background:#000;">
-                    <button onclick="generateSecurePassword()">Genera</button>
+            <!-- VISTA 5: VAULT STRINGHE -->
+            <div id="view-vault-view" class="sub-view hidden">
+                <div class="section-header" style="margin-bottom: 15px;">
+                    <button onclick="addNewString()" class="apple-btn-secondary">+ Nuovo Codice</button>
                 </div>
-                <button onclick="copyPassword()" class="btn-wide" style="background:transparent; border:1px solid var(--text-gray); color:white; font-size:13px; padding:6px;">Copia in Appunti</button>
-            </section>
+                <div id="strings-container"></div>
+            </div>
 
-            <!-- Sezione HomeKit Dinamica -->
-            <section class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="margin:0;">🏠 Comandi rapidi HomeKit</h3>
-                    <button onclick="addNewShortcut()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+            <!-- VISTA 6: SCADENZE -->
+            <div id="view-subs-view" class="sub-view hidden">
+                <div class="section-header" style="margin-bottom: 15px;">
+                    <button onclick="addNewSubscription()" class="apple-btn-secondary">+ Nuova Scadenza</button>
                 </div>
-                <div id="shortcuts-container" class="button-grid">
-                    <!-- Pulsanti dinamici -->
+                <div class="card total-cost-badge">Uscite fisse mensili: <strong id="total-subs-cost">0.00 €</strong></div>
+                <div id="subs-container"></div>
+            </div>
+
+            <!-- VISTA 7: HOMEKIT -->
+            <div id="view-homekit-view" class="sub-view hidden">
+                <div class="section-header" style="margin-bottom: 15px;">
+                    <button onclick="addNewShortcut()" class="apple-btn-secondary">+ Aggiungi Interruttore</button>
                 </div>
-            </section>
+                <div id="shortcuts-container" class="apple-grid"></div>
+            </div>
 
-            <!-- Note Criptate -->
-            <section class="card">
-                <h3>🔒 Note Criptate Locali</h3>
-                <textarea id="secure-notes" placeholder="Scrivi qui i tuoi dati sensibili..."></textarea>
-                <button onclick="saveNotes()" class="btn-wide">Salva Nota Cifrata</button>
-            </section>
-        </main>
-    </div>
-
-    <script src="app.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
-</body>
-</html>
+            <!-- VISTA 8: NOTE CRIPTATE -->
+            <div id="view-notes-view" class="sub-view hidden">
+                <div class="card" style="padding:15px;">
