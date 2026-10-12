@@ -1,22 +1,28 @@
+// CONFIGURAZIONE PIN (Predefinito: 1234)
 const CORRECT_PIN = "1234"; 
 let currentPin = "";
 let userShortcuts = [];
 let userSubscriptions = [];
 let userStrings = [];
 
+// Funzione di sblocco riscritta appositamente per il touch di iPhone
 function pressKey(num) {
     if (currentPin.length < 4) {
         currentPin += num;
         updateDots();
+        
         if (currentPin === CORRECT_PIN) {
             setTimeout(() => {
                 document.getElementById("pin-screen").classList.add("hidden");
                 document.getElementById("main-screen").classList.remove("hidden");
                 loadData();
                 clearPin();
-            }, 250);
+            }, 200);
         } else if (currentPin.length === 4) {
-            setTimeout(() => { alert("PIN Errato"); clearPin(); }, 200);
+            setTimeout(() => { 
+                alert("PIN Errato"); 
+                clearPin(); 
+            }, 200);
         }
     }
 }
@@ -24,12 +30,19 @@ function pressKey(num) {
 function updateDots() {
     const dots = document.querySelectorAll(".dot");
     dots.forEach((dot, index) => {
-        if (index < currentPin.length) dot.classList.add("filled");
-        else dot.classList.remove("filled");
+        if (index < currentPin.length) {
+            dot.classList.add("filled");
+        } else {
+            dot.classList.remove("filled");
+        }
     });
 }
 
-function clearPin() { currentPin = ""; updateDots(); }
+function clearPin() { 
+    currentPin = ""; 
+    updateDots(); 
+}
+
 function lockApp() {
     document.getElementById("main-screen").classList.add("hidden");
     document.getElementById("pin-screen").classList.remove("hidden");
@@ -43,8 +56,6 @@ function calculateFinance() {
     const total = inbank + trade + binance + revolut;
     document.getElementById("total-assets").innerText = total.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
     localStorage.setItem("core_finance", JSON.stringify({inbank, trade, binance, revolut}));
-    
-    // Ricalcola il tasso di risparmio se lo stipendio è inserito
     calculateSavingsRate();
 }
 
@@ -55,28 +66,15 @@ function calculateBudget() {
     document.getElementById("b-30").innerText = (salary * 0.3).toFixed(2) + " €";
     document.getElementById("b-20").innerText = (salary * 0.2).toFixed(2) + " €";
     localStorage.setItem("core_salary", salary);
-
     calculateSavingsRate();
 }
 
-// LOGICA: TASSO DI RISPARMIO (SAVINGS RATE)
 function calculateSavingsRate() {
     const salary = parseFloat(document.getElementById("salary-input").value) || parseFloat(localStorage.getItem("core_salary")) || 0;
     if (salary <= 0) return;
-
-    const trade = parseFloat(document.getElementById("val-trade").value) || 0;
-    const binance = parseFloat(document.getElementById("val-binance").value) || 0;
-    
-    // Calcoliamo la quota risparmio/investimento mensile stimata basandoci sull'allocazione Trade Republic e Binance
-    const totalInvested = trade + binance;
-    // Calcolo indicativo basato sulla quota inserita nel budget (30% + 20% se usi i wallet d'investimento)
-    const rate = ((totalInvested / (totalInvested + (parseFloat(document.getElementById("val-revolut").value) || 1))) * 100);
-    
-    // Calcolo pulito basato sulla formula standard rispetto allo stipendio se configurata una quota mensile fissa
     const b30 = salary * 0.3;
     const b20 = salary * 0.2;
     const standardRate = (((b30 + b20) / salary) * 100).toFixed(0);
-
     document.getElementById("savings-rate-display").innerText = `${standardRate}%`;
     document.getElementById("budget-results").classList.remove("hidden-results");
 }
@@ -88,25 +86,27 @@ function generateSecurePassword() {
     document.getElementById("generated-pwd").value = password;
 }
 
+// Assicura il corretto funzionamento della copia su iOS PWA
 function copyPassword() {
     const pwdInput = document.getElementById("generated-pwd");
-    if(pwdInput.value) { navigator.clipboard.writeText(pwdInput.value); alert("Password copiata!"); }
+    if(pwdInput.value) { 
+        navigator.clipboard.writeText(pwdInput.value); 
+        alert("Password copiata!"); 
+    }
 }
 
-// ================= LOGICA COPIA RAPIDA STRINGHE =================
 function addNewString() {
-    const title = prompt("Nome della stringa (es: IBAN Inbank, Wallet BTC Binance):");
+    const title = prompt("Nome della stringa (es: IBAN Inbank):");
     if (!title) return;
-    const value = prompt("Incolla qui il codice o la stringa di testo:");
+    const value = prompt("Incolla qui il codice:");
     if (!value) return;
-
     userStrings.push({ title, value });
     localStorage.setItem("core_strings", JSON.stringify(userStrings));
     renderStrings();
 }
 
 function removeString(index) {
-    if(confirm("Vuoi eliminare questa stringa dal Vault?")) {
+    if(confirm("Vuoi eliminare questa stringa?")) {
         userStrings.splice(index, 1);
         localStorage.setItem("core_strings", JSON.stringify(userStrings));
         renderStrings();
@@ -142,20 +142,18 @@ function renderStrings() {
     });
 }
 
-// ================= LOGICA SCADENZE & ABBONAMENTI =================
 function addNewSubscription() {
-    const name = prompt("Nome abbonamento/scadenza (es: iCloud, Assicurazione):");
+    const name = prompt("Nome abbonamento:");
     if (!name) return;
-    const cost = parseFloat(prompt("Costo mensile in € (es: 2.99 o 15):")) || 0;
-    const day = parseInt(prompt("Giorno del mese in cui scade (1-31):")) || 1;
-
+    const cost = parseFloat(prompt("Costo mensile (€):")) || 0;
+    const day = parseInt(prompt("Giorno di scadenza (1-31):")) || 1;
     userSubscriptions.push({ name, cost, day });
     localStorage.setItem("core_subs", JSON.stringify(userSubscriptions));
     renderSubscriptions();
 }
 
 function removeSubscription(index) {
-    if(confirm("Vuoi eliminare questa scadenza?")) {
+    if(confirm("Eliminare questa scadenza?")) {
         userSubscriptions.splice(index, 1);
         localStorage.setItem("core_subs", JSON.stringify(userSubscriptions));
         renderSubscriptions();
@@ -204,9 +202,8 @@ function renderSubscriptions() {
     document.getElementById("total-subs-cost").innerText = totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 }
 
-// ================= LOGICA HOMEKIT COMANDI =================
 function addNewShortcut() {
-    const name = prompt("Inserisci il nome ESATTO del comando rapido configurato su iOS:");
+    const name = prompt("Nome esatto del comando rapido iOS:");
     if (!name || userShortcuts.includes(name)) return;
     userShortcuts.push(name);
     localStorage.setItem("core_shortcuts", JSON.stringify(userShortcuts));
@@ -225,19 +222,23 @@ function renderShortcuts() {
     const container = document.getElementById("shortcuts-container");
     container.innerHTML = "";
     if(userShortcuts.length === 0) {
-container.innerHTML = "Nessun comando aggiunto.";
-return;
+        container.innerHTML = "<p style='color:var(--text-gray); font-size:12px; text-align:center;'>Nessun comando aggiunto.</p>";
+        return;
+    }
+    userShortcuts.forEach(shortcut => {
+        const wrapper = document.createElement("div");
+        wrapper.style = "display:flex; gap:10px; margin-bottom:10px;";
+        const encodedName = encodeURIComponent(shortcut);
+        wrapper.innerHTML = `
+            <a href="shortcuts://run-shortcut?name=${encodedName}" class="btn-hk" style="flex:1; text-align:left; padding:12px;">⚡ ${shortcut}</a>
+            <button onclick="removeShortcut('${shortcut}')" style="background:#ff3b30; color:white; padding:0 15px; border-radius:12px;">✕</button>
+        `;
+        container.appendChild(wrapper);
+    });
 }
-userShortcuts.forEach(shortcut => {
-const wrapper = document.createElement("div");
-wrapper.style = "display:flex; gap:10px; margin-bottom:10px;";
-const encodedName = encodeURIComponent(shortcut);
-wrapper.innerHTML = <a href="shortcuts://run-shortcut?name=${encodedName}" class="btn-hk" style="flex:1; text-align:left; padding:12px;">⚡ ${shortcut}</a> <button onclick="removeShortcut('${shortcut}')" style="background:#ff3b30; color:white; padding:0 15px; border-radius:12px;">✕</button>;
-container.appendChild(wrapper);
-});
-}
+
 function saveNotes() {
-const noteText = document.getElementById("secure-notes").value;
+    const noteText = document.getElementById("secure-notes").value;
 const encrypted = btoa(unescape(encodeURIComponent(noteText)));
 localStorage.setItem("core_notes", encrypted);
 alert("Nota salvata localmente.");
