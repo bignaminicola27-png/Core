@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CORE</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CORE">
+</head>
+<body>
+
+    <!-- 1. SCHERMATA PIN -->
+    <div id="pin-screen" class="screen">
+        <div class="pin-container">
+            <h2>CORE SYSTEM</h2>
+            <p>Inserisci codice di sblocco</p>
+            <div class="pin-dots">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div class="pin-keypad">
+                <button onclick="pressKey(1)">1</button><button onclick="pressKey(2)">2</button><button onclick="pressKey(3)">3</button>
+                <button onclick="pressKey(4)">4</button><button onclick="pressKey(5)">5</button><button onclick="pressKey(6)">6</button>
+                <button onclick="pressKey(7)">7</button><button onclick="pressKey(8)">8</button><button onclick="pressKey(9)">9</button>
+                <button class="empty"></button><button onclick="pressKey(0)">0</button><button onclick="clearPin()">C</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD PRINCIPALE -->
+    <div id="main-screen" class="screen hidden">
+        <header>
+            <h1>CORE</h1>
+            <span class="lock-icon" onclick="lockApp()">🔒</span>
+        </header>
+
+        <main>
+            <!-- Sezione Finanza Bilancio -->
+            <section class="card">
+                <h3>💰 Riepilogo Bilancio Manuale</h3>
+                <div class="input-grid">
+                    <label>Inbank (€): <input type="number" id="val-inbank" value="0" onchange="calculateFinance()"></label>
+                    <label>Trade Rep (€): <input type="number" id="val-trade" value="0" onchange="calculateFinance()"></label>
+                    <label>Binance (€): <input type="number" id="val-binance" value="0" onchange="calculateFinance()"></label>
+                    <label>Revolut (€): <input type="number" id="val-revolut" value="0" onchange="calculateFinance()"></label>
+                </div>
+                <div class="result-box" style="margin-top:15px; text-align:right;">
+                    <p style="margin:0; font-size:16px;">Totale Asset: <strong id="total-assets" style="color:var(--cyan);">0.00 €</strong></p>
+                </div>
+            </section>
+
+            <!-- Sezione Regola Budget & TASSO DI RISPARMIO -->
+            <section class="card">
+                <h3>📊 Ripartizione Stipendio & Savings Rate</h3>
+                <div class="input-single" style="display:flex; gap:10px;">
+                    <input type="number" id="salary-input" placeholder="Stipendio ricevuto" style="flex:1;">
+                    <button onclick="calculateBudget()">Calcola</button>
+                </div>
+                <div id="budget-results" class="hidden-results" style="margin-top:10px; font-size:14px; line-height:1.6;">
+                    <p style="margin:5px 0;">Necessità (50% -> Inbank/Revolut): <span id="b-50" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
+                    <p style="margin:5px 0;">Investimenti (30% -> Trade Rep): <span id="b-30" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
+                    <p style="margin:5px 0;">Svago/Crypto (20% -> Binance): <span id="b-20" style="color:var(--cyan); font-weight:bold;">0 €</span></p>
+                    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #333; font-weight:bold;">
+                        Tasso di Risparmio Attuale: <span id="savings-rate-display" style="color:#34c759;">0%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEZIONE: VAULT COPIA RAPIDA STRINGHE -->
+            <section class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0;">📋 Copia Rapida (IBAN / Wallet Crypto)</h3>
+                    <button onclick="addNewString()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+                </div>
+                <div id="strings-container">
+                    <!-- Lista codici e bottoni copia -->
+                </div>
+            </section>
+
+            <!-- Sezione Scadenze -->
+            <section class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0;">📅 Scadenze e Abbonamenti</h3>
+                    <button onclick="addNewSubscription()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+                </div>
+                <div id="subs-container">
+                    <!-- Lista delle scadenze caricate localmente -->
+                </div>
+                <div style="margin-top:12px; text-align:right; font-size:13px; color:var(--text-gray);">
+                    Uscite fisse mensili: <strong id="total-subs-cost" style="color:white;">0.00 €</strong>
+                </div>
+            </section>
+
+            <!-- Generatore Password -->
+            <section class="card">
+                <h3>🔑 Generatore Password Sicure</h3>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="generated-pwd" readonly placeholder="Password generata" style="flex:1; background:#000;">
+                    <button onclick="generateSecurePassword()">Genera</button>
+                </div>
+                <button onclick="copyPassword()" class="btn-wide" style="background:transparent; border:1px solid var(--text-gray); color:white; font-size:13px; padding:6px;">Copia in Appunti</button>
+            </section>
+
+            <!-- Sezione HomeKit Dinamica -->
+            <section class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0;">🏠 Comandi rapidi HomeKit</h3>
+                    <button onclick="addNewShortcut()" style="padding:4px 10px; font-size:13px;">+ Aggiungi</button>
+                </div>
+                <div id="shortcuts-container" class="button-grid">
+                    <!-- Pulsanti dinamici -->
+                </div>
+            </section>
+
+            <!-- Note Criptate -->
+            <section class="card">
+                <h3>🔒 Note Criptate Locali</h3>
+                <textarea id="secure-notes" placeholder="Scrivi qui i tuoi dati sensibili..."></textarea>
+                <button onclick="saveNotes()" class="btn-wide">Salva Nota Cifrata</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
