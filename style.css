@@ -1,99 +1,99 @@
+### 2. `style.css`
+```css
 :root {
-    --bg-black: #000000;
-    --card-bg: #0b0b0c;
-    --cyan: #00f0ff;
+    --apple-black: #000000;
+    --apple-dark-gray: #1c1c1e;
+    --apple-card-bg: #121214;
+    --apple-green: #4cbd49;
     --text-white: #ffffff;
-    --text-gray: #8e8e93;
+    --apple-gray: #8e8e93;
+    --border-gray: #2c2c2e;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-black);
+    margin: 0; padding: 0;
+    background-color: var(--apple-black);
     color: var(--text-white);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     -webkit-font-smoothing: antialiased;
-    -webkit-tap-highlight-color: transparent; /* Elimina il fastidioso flash azzurro al tocco su iOS */
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Gestione Schermate */
 .screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-    overflow-y: auto;
-    padding: calc(40px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    box-sizing: border-box; overflow-x: hidden;
 }
-
 .hidden { display: none !important; }
 
-/* Tastierino PIN */
-.pin-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-.pin-dots { display: flex; gap: 20px; margin: 30px 0; }
-.dot { width: 15px; height: 15px; border: 2px solid var(--cyan); border-radius: 50%; transition: 0.2s; }
-.dot.filled { background-color: var(--cyan); }
-.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-
-/* BOTTONI PIN CORRETTI PER SBLOCCARE IL TOUCH SU IPHONE */
+/* SCHERMATA PIN APPLE PREMIUM */
+.pin-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #000; }
+.apple-logo { font-size: 40px; margin-bottom: 10px; color: var(--apple-green); }
+.pin-container h2 { font-size: 22px; font-weight: 600; margin: 10px 0; letter-spacing: -0.5px; }
+.pin-container p { color: var(--apple-gray); font-size: 14px; margin-bottom: 30px; }
+.pin-dots { display: flex; gap: 24px; margin-bottom: 40px; }
+.dot { width: 14px; height: 14px; border: 1.5px solid var(--apple-gray); border-radius: 50%; transition: background-color 0.15s; }
+.dot.filled { background-color: var(--apple-green); border-color: var(--apple-green); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 28px; }
 .pin-keypad button {
-    width: 75px; 
-    height: 75px; 
-    background: var(--card-bg); 
-    border: 1px solid #222;
-    color: white; 
-    font-size: 24px; 
-    border-radius: 50%; 
-    cursor: pointer;
-    touch-action: manipulation; /* Dice a iOS di registrare il tocco senza attendere il doppio click */
-}
-.pin-keypad button:active { 
-    background: var(--cyan); 
-    color: black; 
-}
-.pin-keypad button.empty { background: transparent; border: none; pointer-events: none; }
-
-/* Dashboard UI */
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-h1 { font-weight: 800; color: var(--text-white); font-size: 28px; letter-spacing: -0.5px; }
-.lock-icon { font-size: 22px; cursor: pointer; }
-
-.card {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 1px solid #1c1c1e;
-}
-h3 { margin-top: 0; font-size: 16px; color: var(--cyan); font-weight: 600; }
-
-.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-label { font-size: 13px; color: var(--text-gray); display: flex; flex-direction: column; }
-input, textarea {
-    background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 8px; color: white;
-    padding: 10px; margin-top: 5px; font-size: 15px;
-}
-textarea { width: 100%; height: 80px; box-sizing: border-box; resize: none; }
-
-button {
-    background: var(--cyan); color: #000; border: none; padding: 12px 20px;
-    border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer;
+    width: 75px; height: 75px; background: rgba(255,255,255,0.06); border: none;
+    color: white; font-size: 28px; border-radius: 50%; cursor: pointer;
     touch-action: manipulation;
 }
-.btn-wide { width: 100%; margin-top: 10px; }
+.pin-keypad button:active { background: rgba(255,255,255,0.2); }
+.pin-keypad button.empty { background: transparent; pointer-events: none; }
 
-.button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.btn-hk {
-    background: #1c1c1e; color: white; border: 1px solid #2c2c2e; padding: 15px;
-    text-align: center; border-radius: 12px; text-decoration: none; font-weight: 500;
-    touch-action: manipulation;
+/* NAVBAR SYSTEM */
+.navbar {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 44px;
+    padding-top: env(safe-area-inset-top); background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding-left: 16px; padding-right: 16px; box-sizing: border-box;
+    border-bottom: 0.5px solid var(--border-gray); z-index: 99;
 }
-.btn-hk:active { background: #2c2c2e; }
+#menu-trigger { background: transparent; border: none; color: var(--apple-green); font-size: 24px; cursor: pointer; }
+.navbar h1 { font-size: 17px; font-weight: 600; margin: 0; }
+.lock-icon { font-size: 18px; cursor: pointer; color: var(--apple-gray); }
+
+/* CONTENUTI */
+.content-wrapper {
+    padding-top: calc(54px + env(safe-area-inset-top));
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+    padding-left: 16px; padding-right: 16px;
+    box-sizing: border-box; height: 100%; overflow-y: auto;
+}
+
+.apple-list { background: var(--apple-card-bg); border-radius: 12px; border: 0.5px solid var(--border-gray); overflow: hidden; margin-bottom: 20px; }
+.list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 0.5px solid var(--border-gray); font-size: 15px; }
+.list-item:last-child { border-bottom: none; }
+.list-item input { background: transparent; border: none; color: white; text-align: right; font-size: 16px; width: 50%; outline: none; }
+
+.card { background: var(--apple-card-bg); border-radius: 12px; border: 0.5px solid var(--border-gray); padding: 16px; margin-bottom: 20px; }
+.summary-card { text-align: center; padding: 24px 16px; background: linear-gradient(145deg, #0d0d0f, #15151a); }
+.card-label { font-size: 11px; font-weight: 600; color: var(--apple-gray); letter-spacing: 0.8px; display: block; margin-bottom: 6px; }
+.summary-card h2 { margin: 0; font-size: 34px; font-weight: 700; color: var(--apple-green); }
+.runway-display { margin-top: 15px; padding: 12px; background: rgba(76, 189, 73, 0.1); border-radius: 8px; border: 0.5px solid rgba(76,189,73,0.3); text-align: center; font-weight: 600; color: #5ce658; }
+
+.apple-btn { background: var(--apple-green); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; }
+.apple-btn-secondary { background: var(--apple-dark-gray); color: var(--apple-green); border: 0.5px solid var(--border-gray); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.apple-input-group { display: flex; gap: 10px; margin-top: 10px; }
+.apple-input-group input { background: #1c1c1e; border: none; border-radius: 8px; color: white; padding: 12px; flex: 1; font-size: 15px; outline: none; }
+textarea { width: 100%; height: 160px; box-sizing: border-box; background: #000; border: 0.5px solid var(--border-gray); border-radius: 8px; color: white; padding: 12px; font-size: 15px; font-family: inherit; outline: none; resize: none; }
+
+/* SIDEBAR STRUTTURA */
+.sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100vh; background: #0d0d0f; border-right: 0.5px solid var(--border-gray); z-index: 101; transition: left 0.25s ease; box-sizing: border-box; padding-top: calc(20px + env(safe-area-inset-top)); }
+.sidebar.open { left: 0; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 20px 20px; border-bottom: 0.5px solid var(--border-gray); }
+.sidebar-header h3 { margin: 0; font-size: 14px; color: var(--apple-gray); }
+.sidebar-header button { background: transparent; border: none; color: white; font-size: 18px; cursor: pointer; }
+.menu-list { list-style: none; padding: 10px; margin: 0; }
+.menu-list li { padding: 14px 16px; border-radius: 8px; font-size: 15px; font-weight: 500; margin-bottom: 4px; cursor: pointer; color: #e5e5ea; }
+.menu-list li.active { background: rgba(76, 189, 73, 0.15); color: #5ce658; font-weight: 600; }
+#sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 100; display: none; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+#sidebar-overlay.show { display: block; }
+
+/* HOMEKIT DESIGN GRID */
+.apple-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 5px; }
+.btn-hk { background: var(--apple-card-bg); border: 0.5px solid var(--border-gray); border-radius: 12px; padding: 16px; text-decoration: none; color: white; display: flex; flex-direction: column; justify-content: space-between; height: 80px; box-sizing: border-box; }
+.btn-hk .hk-icon { font-size: 22px; color: var(--apple-green); }
+.btn-hk .hk-title { font-size: 14px; font-weight: 600; }
